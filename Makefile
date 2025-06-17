@@ -1,14 +1,22 @@
 CC = gcc
-CFLAGS = -lreadline
-TARGET = shell
-SOURCE = shell.c
+CFLAGS = -lreadline -Wall
+SRC = src
+INC = include
+OBJ = obj
+BIN = vsh
+SRCS = $(wildcard $(SRC)/*.c)
+OBJS = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 
-all: shell
+all: $(BIN)
 
-shell: $(TARGET)
-	$(CC) -o $(TARGET) $(SOURCE) $(CFLAGS) && ./$(TARGET)
+$(BIN): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@
 
-clean: 
-	rm shell
+$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: all clean
+$(OBJ):
+	mkdir -p $(OBJ)
+
+clean:
+	rm -rf $(BIN) $(OBJ)

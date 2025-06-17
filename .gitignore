@@ -1,4 +1,6 @@
+shell.c
 shell
 vsh
-*.o
-*.out
+obj/
+**.o
+**.out
