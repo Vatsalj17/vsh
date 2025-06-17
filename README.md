@@ -42,6 +42,27 @@ vsh/
 - GNU Readline library
 - POSIX-compliant Unix system (Linux, macOS, etc.)
 
+### Installing Dependencies
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install gcc libreadline-dev
+```
+
+**CentOS/RHEL/Fedora:**
+```bash
+sudo yum install gcc readline-devel
+# or for newer versions:
+sudo dnf install gcc readline-devel
+```
+
+**macOS:**
+```bash
+# Install Xcode command line tools
+xcode-select --install
+# Readline is usually available by default
+```
+
 ## Building
 
 Clone the repository and build using make:
