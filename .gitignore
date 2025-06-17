@@ -1,4 +1,4 @@
-./shell
-./vsh
+shell
+vsh
 *.o
 *.out

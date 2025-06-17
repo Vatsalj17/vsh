@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "colors.h"
 
 #define VSH_TOK_BUFSIZE 64
 #define VSH_TOK_DELIM " \t\r\n\a"
@@ -136,9 +137,9 @@ char **read_line() {
 		perror("path");
 		return NULL;
 	}
-	size_t shell_size = strlen(username) + strlen(hostname) + strlen(path) + 10;
+	size_t shell_size = strlen(username) + strlen(hostname) + strlen(path) + 100;
 	char *shell = (char *)malloc(shell_size);
-	snprintf(shell, shell_size, "%s@%s:[%s]> ", username, hostname, path);
+	snprintf(shell, shell_size, BHGRN"%s"BHRED"@%s"reset":[""%s"reset"]$ ", username, hostname, path);
 	input = readline(shell);
 	if (input == NULL) {
 		printf("Exiting shell...\n");
