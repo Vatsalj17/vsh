@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lreadline -Wall
+CFLAGS = -lreadline
 SRC = src
 INC = include
 OBJ = obj
@@ -10,7 +10,7 @@ OBJS = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 all: $(BIN)
 
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(OBJS) -o $@ $(CFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
