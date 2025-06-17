@@ -1,0 +1,4 @@
+./shell
+./vsh
+*.o
+*.out
