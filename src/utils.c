@@ -18,6 +18,14 @@ char *vsh_get_homedir() {
 	return pwd->pw_dir;
 }
 
+char *vsh_history_path() {
+    char *home = vsh_get_homedir();
+    size_t hist_size = strlen(home) + 14;
+    char *hist_path = (char *)malloc(hist_size);
+    snprintf(hist_path, hist_size, "%s/.vsh_history", home);
+    return hist_path;
+}
+
 char *vsh_get_path(char *home) {
 	size_t buf_size = VSH_PATH_BUFSIZE;
 	char *path = NULL;

@@ -5,6 +5,7 @@
 
 char *vsh_get_username();
 char *vsh_get_homedir();
+char *vsh_history_path();
 char *vsh_get_path(char *home);
 
 #endif

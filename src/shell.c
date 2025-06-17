@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #include "../include/shell.h"
 #include "../include/utils.h"
 #include "../include/parser.h"
@@ -31,7 +32,10 @@ char **read_line() {
 		free(shell);
 		free(input);
 		exit(0);
-	}
+	} else if (input && *input) {
+        add_history(input);
+        write_history(vsh_history_path());
+    }
 	command = tokenize_input(input);
 	free(input);
 	if (command[0] == NULL) {
