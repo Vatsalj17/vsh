@@ -8,7 +8,7 @@
 
 int vsh_cd(char **args) {
 	if (args[1] == NULL || strcmp(args[1], "~") == 0) {
-		chdir(vsh_get_homedir());  // fallback to home directory
+		chdir(vsh_get_homedir());
 	} else if (chdir(args[1]) < 0) {
 		perror("cd");
 		return -1;

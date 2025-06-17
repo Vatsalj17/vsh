@@ -37,7 +37,6 @@ char *vsh_get_path(char *home) {
 			return path;
 		}
 		if (errno == ERANGE) {
-			// Buffer too small, double size and retry
 			free(path);
 			path = NULL;
 			buf_size += VSH_PATH_BUFSIZE;
