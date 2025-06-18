@@ -2,5 +2,6 @@ Shell.c
 shell
 vsh
 obj/
+trash/
 **.o
 **.out

@@ -10,28 +10,38 @@ char **tokenize_input(char *input) {
 		perror("malloc error");
 		return NULL;
 	}
-	char *token;
 	int index = 0;
+    int pos = 0;
+    while (input[pos] != '\0') {
+        while (input[pos] == ' ') pos++;
+        if (input[pos] == '\0') break;
 
-	token = strtok(input, VSH_TOK_DELIM);
-	while (token != NULL) {
-		tokens[index] = strdup(token);
-		if (tokens[index] == NULL) {
-			for (int i = 0; i < index; i++) free(tokens[i]);
-			free(tokens);
-			return NULL;
-		}
-		index++;
+        char *token = malloc(bufsize);
+        if (!token) {
+            perror("malloc token");
+            for (int j = 0; j < index; j++) free(tokens[j]);
+            free(tokens);
+            return NULL;
+        }
+        int i = 0;
+
+        while (input[pos] != ' ' && input[pos] != '\0') {
+            token[i++] = input[pos++];
+        }
+        token[i] = '\0';
+        tokens[index++] = token;
 		if (index >= bufsize) {
 			bufsize += VSH_TOK_BUFSIZE;
-			tokens = realloc(tokens, sizeof(char *) * bufsize);
-			if (!tokens) {
+			char **tmp = realloc(tokens, sizeof(char *) * bufsize);
+			if (!tmp) {
 				perror("realloc error");
+                for (int j = 0; j < index; j++) free(tokens[j]);
+                free(tokens);
 				return NULL;
 			}
+            tokens = tmp;
 		}
-		token = strtok(NULL, VSH_TOK_DELIM);
-	}
+    }
 	tokens[index] = NULL;
 	return tokens;
 }

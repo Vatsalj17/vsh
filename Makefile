@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lreadline
+CFLAGS = -lreadline -g
 SRC = src
 INC = include
 OBJ = obj

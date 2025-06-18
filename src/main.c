@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pwd.h>
-#include <readline/readline.h>
 #include <readline/history.h>
 #include <setjmp.h>
 #include <signal.h>
