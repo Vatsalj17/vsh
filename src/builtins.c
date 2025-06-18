@@ -10,7 +10,15 @@
 int vsh_cd(char **args) {
 	if (args[1] == NULL || strcmp(args[1], "~") == 0) {
 		chdir(vsh_get_homedir());
-	} else if (chdir(args[1]) < 0) {
+	} else if (args[1][0] == '~') {
+        size_t pathsize = strlen(args[1]) + strlen(vsh_get_homedir());
+        char *path = (char *)malloc(pathsize);
+        snprintf(path, pathsize, "%s%s", vsh_get_homedir(), args[1] + 1);
+        if (chdir(path) < 0) {
+            perror("cd ~");
+            return -1;
+        }
+    } else if (chdir(args[1]) < 0) {
 		perror("cd");
 		return -1;
 	}
@@ -18,7 +26,7 @@ int vsh_cd(char **args) {
 }
 
 int vsh_help(char **args) {
-	printf("Available commands:\n- cd\n- help\n- exit\n");
+	printf("Available commands:\n- cd\n- help\n- exit\n- history\n");
 	return 0;
 }
 
