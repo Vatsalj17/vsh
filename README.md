@@ -33,16 +33,54 @@ vsh/
 │   └── utils.c   
 ├── obj/    
 ├── Makefile
+├── install.sh        # Automated installation script
 └── vsh     
 ```
 
-## Prerequisites
+## Installation
+
+### Method 1: Automated Installation (Recommended)
+
+Use the provided installation script that automatically detects your system and installs dependencies:
+
+```bash
+git clone https://github.com/Vatsalj17/vsh.git
+cd vsh
+chmod +x install.sh
+./install.sh
+```
+
+The installation script supports multiple operating systems and distributions:
+- **macOS**: Uses Homebrew for dependencies
+- **Ubuntu/Debian**: Uses apt package manager
+- **Arch Linux/Manjaro**: Uses pacman package manager
+- **Fedora**: Uses dnf package manager
+- **RHEL/CentOS**: Uses yum/dnf with EPEL repository
+- **openSUSE**: Uses zypper package manager
+- **Alpine Linux**: Uses apk package manager
+- **Void Linux**: Uses xbps package manager
+- **Gentoo**: Uses emerge package manager
+
+#### Installation Script Options
+
+```bash
+./install.sh                # Full installation (dependencies + build + install)
+./install.sh --deps-only    # Install dependencies only
+./install.sh --build-only   # Build only (skip dependencies and installation)
+./install.sh --help         # Show help information
+```
+
+### Method 2: Manual Installation
+
+If you prefer manual installation or the automated script doesn't work for your system:
+
+#### Prerequisites
 
 - GCC compiler
 - GNU Readline library
 - POSIX-compliant Unix system (Linux, macOS, etc.)
 
-### Installing Dependencies
+#### Installing Dependencies Manually
 
 **Ubuntu/Debian:**
 ```bash
@@ -63,9 +101,7 @@ xcode-select --install
 # Readline is usually available by default
 ```
 
-## Building
-
-Clone the repository and build using make:
+#### Building Manually
 
 ```bash
 git clone https://github.com/Vatsalj17/vsh.git
@@ -80,7 +116,9 @@ This will create the `vsh` executable in the project directory.
 Run the shell:
 
 ```bash
-./vsh
+./vsh        # If built locally
+# or
+vsh          # If installed system-wide
 ```
 
 You'll see a colorized prompt in the format:
@@ -91,10 +129,9 @@ username@hostname:[current_directory]$
 ### Built-in Commands
 
 - **`cd [directory]`**: Change directory
-  
 - **`help`**: Display available commands
-
 - **`exit`**: Exit the shell
+- **`history`**: Display history of commands
 
 ### External Commands
 
@@ -135,6 +172,12 @@ Remove compiled files:
 
 ```bash
 make clean
+```
+
+Uninstall VSH (if installed system-wide):
+
+```bash
+sudo rm /usr/local/bin/vsh
 ```
 
 ## Known Limitations
