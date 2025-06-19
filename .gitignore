@@ -4,5 +4,6 @@ vsh
 obj/
 trash/
 Dockerfile
+hard_setup.sh
 **.o
 **.out
