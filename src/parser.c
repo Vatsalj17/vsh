@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../include/parser.h"
 
 char **tokenize_input(char *input) {
@@ -24,8 +25,15 @@ char **tokenize_input(char *input) {
             return NULL;
         }
         int i = 0;
-
-        while (input[pos] != ' ' && input[pos] != '\0') {
+        int count = 0;
+        bool check = false;
+        while (check || (input[pos] != ' ' && input[pos] != '\0')) {
+            if (input[pos] == '"') {
+                check = !check;
+                count++;
+                pos++;
+                if (count % 2 == 0) continue;
+            }
             token[i++] = input[pos++];
         }
         token[i] = '\0';
