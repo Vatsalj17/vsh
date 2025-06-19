@@ -51,6 +51,15 @@ print_danger() {
     echo -e "${RED}[DANGER]${NC} $1"
 }
 
+# === Function: Get sudo command ===
+get_sudo_cmd() {
+    if [ "$EUID" -eq 0 ]; then
+        echo ""
+    else
+        echo "sudo"
+    fi
+}
+
 # === Function: Detect system ===
 detect_system() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -136,17 +145,12 @@ get_installed_shells() {
 # === Function: Remove shell packages ===
 remove_shell_packages() {
     local system="$1"
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
     
     print_danger "Removing shell packages from system..."
     
     case "$system" in
-    # Replace all sudo commands with dynamic sudo command
-    local sudo_cmd
-    if [ "$EUID" -eq 0 ]; then
-        sudo_cmd=""
-    else
-        sudo_cmd="sudo"
-    fi
         ubuntu|debian)
             # Remove shell packages with maximum force
             $sudo_cmd apt-get remove --purge -y bash zsh fish dash csh tcsh ksh 2>/dev/null || true
@@ -196,6 +200,8 @@ remove_shell_packages() {
 # === Function: Remove shell binaries ===
 remove_shell_binaries() {
     local shells
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
     mapfile -t shells < <(get_installed_shells)
     
     print_danger "Removing shell binaries..."
@@ -203,28 +209,34 @@ remove_shell_binaries() {
     for shell in "${shells[@]}"; do
         if [ -f "$shell" ]; then
             print_status "Removing: $shell"
-            sudo rm -f "$shell" 2>/dev/null || print_warning "Could not remove $shell"
+            $sudo_cmd rm -f "$shell" 2>/dev/null || print_warning "Could not remove $shell"
         fi
     done
     
     # Remove common shell symlinks
-    sudo rm -f /bin/sh /usr/bin/sh 2>/dev/null || true
+    $sudo_cmd rm -f /bin/sh /usr/bin/sh 2>/dev/null || true
     
     print_success "Shell binaries removed"
 }
 
 # === Function: Update /etc/shells ===
 update_etc_shells() {
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
+    
     print_status "Updating /etc/shells..."
     
     # Create new /etc/shells with only VSH
-    echo "$VSH_PATH" | sudo tee /etc/shells > /dev/null
+    echo "$VSH_PATH" | $sudo_cmd tee /etc/shells > /dev/null
     
     print_success "/etc/shells updated - VSH is now the only valid shell"
 }
 
 # === Function: Change user shells ===
 change_user_shells() {
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
+    
     print_status "Changing all user shells to VSH..."
     
     # Get all users from /etc/passwd
@@ -233,7 +245,7 @@ change_user_shells() {
         if [ "$uid" -ge 1000 ] || [ "$username" = "root" ]; then
             if [ "$shell" != "$VSH_PATH" ] && [ -n "$shell" ]; then
                 print_status "Changing shell for user: $username ($shell -> $VSH_PATH)"
-                sudo usermod -s "$VSH_PATH" "$username"
+                $sudo_cmd usermod -s "$VSH_PATH" "$username"
             fi
         fi
     done < /etc/passwd
@@ -243,11 +255,14 @@ change_user_shells() {
 
 # === Function: Update system default shell ===
 update_system_defaults() {
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
+    
     print_status "Updating system default shell configurations..."
     
     # Update /bin/sh symlink to point to VSH
-    sudo ln -sf "$VSH_PATH" /bin/sh 2>/dev/null || true
-    sudo ln -sf "$VSH_PATH" /usr/bin/sh 2>/dev/null || true
+    $sudo_cmd ln -sf "$VSH_PATH" /bin/sh 2>/dev/null || true
+    $sudo_cmd ln -sf "$VSH_PATH" /usr/bin/sh 2>/dev/null || true
     
     # Update environment variables in common locations
     local env_files=(
@@ -259,7 +274,7 @@ update_system_defaults() {
     
     for file in "${env_files[@]}"; do
         if [ -f "$file" ]; then
-            sudo sed -i.bak "s|SHELL=.*|SHELL=$VSH_PATH|g" "$file" 2>/dev/null || true
+            $sudo_cmd sed -i.bak "s|SHELL=.*|SHELL=$VSH_PATH|g" "$file" 2>/dev/null || true
         fi
     done
     
@@ -268,12 +283,15 @@ update_system_defaults() {
 
 # === Function: Clean up shell configs ===
 cleanup_shell_configs() {
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
+    
     print_status "Cleaning up shell configuration files..."
     
     # Remove global shell configs
-    sudo rm -rf /etc/bash.bashrc /etc/bash_completion.d 2>/dev/null || true
-    sudo rm -rf /etc/zsh /usr/share/zsh 2>/dev/null || true
-    sudo rm -rf /etc/fish /usr/share/fish 2>/dev/null || true
+    $sudo_cmd rm -rf /etc/bash.bashrc /etc/bash_completion.d 2>/dev/null || true
+    $sudo_cmd rm -rf /etc/zsh /usr/share/zsh 2>/dev/null || true
+    $sudo_cmd rm -rf /etc/fish /usr/share/fish 2>/dev/null || true
     
     # Clean up user directories (be careful here)
     print_warning "Removing user shell configs - this will delete .bashrc, .zshrc, etc."
@@ -285,22 +303,25 @@ cleanup_shell_configs() {
     find /home -name ".zsh_history" -delete 2>/dev/null || true
     
     # Clean root's shell configs too
-    sudo rm -f /root/.bashrc /root/.zshrc /root/.bash_profile /root/.bash_history /root/.zsh_history 2>/dev/null || true
+    $sudo_cmd rm -f /root/.bashrc /root/.zshrc /root/.bash_profile /root/.bash_history /root/.zsh_history 2>/dev/null || true
     
     print_success "Shell configurations cleaned up"
 }
 
 # === Function: Create VSH symlinks ===
 create_vsh_symlinks() {
+    local sudo_cmd
+    sudo_cmd=$(get_sudo_cmd)
+    
     print_status "Creating VSH compatibility symlinks..."
     
     # Create symlinks for common shell names to point to VSH
     local shell_names=("bash" "zsh" "fish" "dash" "sh")
     
     for shell_name in "${shell_names[@]}"; do
-        sudo ln -sf "$VSH_PATH" "/usr/local/bin/$shell_name" 2>/dev/null || true
-        sudo ln -sf "$VSH_PATH" "/bin/$shell_name" 2>/dev/null || true
-        sudo ln -sf "$VSH_PATH" "/usr/bin/$shell_name" 2>/dev/null || true
+        $sudo_cmd ln -sf "$VSH_PATH" "/usr/local/bin/$shell_name" 2>/dev/null || true
+        $sudo_cmd ln -sf "$VSH_PATH" "/bin/$shell_name" 2>/dev/null || true
+        $sudo_cmd ln -sf "$VSH_PATH" "/usr/bin/$shell_name" 2>/dev/null || true
     done
     
     print_success "VSH symlinks created for compatibility"
@@ -370,13 +391,11 @@ main() {
     print_danger "NO WARNINGS, NO MERCY, NO GOING BACK!"
     echo ""
     
-    # Force sudo/root access regardless of current user
+    # Check privileges
     if [ "$EUID" -eq 0 ]; then
         print_danger "RUNNING AS ROOT - MAXIMUM DESTRUCTION ENABLED!"
-        SUDO_CMD=""
     else
         print_danger "ELEVATING TO ROOT PRIVILEGES FOR MAXIMUM CHAOS!"
-        SUDO_CMD="sudo"
     fi
     
     local system
