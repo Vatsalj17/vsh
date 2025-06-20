@@ -11,8 +11,7 @@ char **tokenize_input(char *input) {
 		perror("malloc error");
 		return NULL;
 	}
-	int index = 0;
-    int pos = 0;
+	int index = 0, pos = 0;
     while (input[pos] != '\0') {
         while (input[pos] == ' ') pos++;
         if (input[pos] == '\0') break;
@@ -24,10 +23,10 @@ char **tokenize_input(char *input) {
             free(tokens);
             return NULL;
         }
-        int i = 0;
-        int count = 0;
+        int i = 0, count = 0;
         bool check = false;
         while (check || (input[pos] != ' ' && input[pos] != '\0')) {
+            // handling quotes
             if (input[pos] == '"') {
                 check = !check;
                 count++;
@@ -37,6 +36,14 @@ char **tokenize_input(char *input) {
             token[i++] = input[pos++];
         }
         token[i] = '\0';
+        // handling env variable
+        if (token[0] == '$') {
+            char *env_var = getenv(token + 1);
+            if (env_var != NULL) {
+                free(token);
+                token = strdup(env_var);
+            }
+        }
         tokens[index++] = token;
 		if (index >= bufsize) {
 			bufsize += VSH_TOK_BUFSIZE;
