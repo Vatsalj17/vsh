@@ -24,7 +24,7 @@ char **read_line() {
 	}
 	size_t shell_size = strlen(username) + strlen(hostname) + strlen(path) + 100;
 	char *shell = (char *)malloc(shell_size);
-	snprintf(shell, shell_size, BHGRN"%s"BHRED"@%s"reset":["CYN"%s"reset"]$ ", username, hostname, path);
+	snprintf(shell, shell_size, BHGRN"%s"BHRED"@%s"reset":["CYN"%s"reset"]⊱ ", username, hostname, path);
 	input = readline(shell);
 	if (input == NULL) {
 		printf("Exiting shell...\n");
