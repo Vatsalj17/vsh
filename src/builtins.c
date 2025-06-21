@@ -6,7 +6,6 @@
 #include "../include/utils.h"
 #include "../include/builtins.h"
 
-
 int vsh_cd(char **args) {
 	if (args[1] == NULL || strcmp(args[1], "~") == 0) {
 		chdir(vsh_get_homedir());

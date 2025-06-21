@@ -65,9 +65,6 @@ The installation script supports multiple operating systems and distributions:
 
 ```bash
 ./install.sh                # Full installation (dependencies + build + install)
-./install.sh --deps-only    # Install dependencies only
-./install.sh --build-only   # Build only (skip dependencies and installation)
-./install.sh --help         # Show help information
 ```
 
 ### Method 2: Manual Installation
@@ -123,7 +120,7 @@ vsh          # If installed system-wide
 
 You'll see a colorized prompt in the format:
 ```
-username@hostname:[current_directory]$ 
+username@hostname:[current_directory]⊱
 ```
 
 ### Built-in Commands
@@ -182,10 +179,8 @@ sudo rm /usr/local/bin/vsh
 
 ## Known Limitations
 
-- No support for pipes (`|`) or redirections (`>`, `<`)
 - No background process support (`&`)
 - Limited tab completion (relies on readline's default behavior)
-- No command history persistence between sessions
 
 ## Contributing
 

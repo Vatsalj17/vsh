@@ -6,9 +6,9 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include "../include/executor.h"
 #include "../include/builtins.h"
-
+#include "../include/parser.h"
+#include "../include/executor.h"
 
 void handle_redirections(char *input_file, char *output_file, char *append_file) {
 	if (output_file != NULL) {
@@ -40,6 +40,38 @@ bool found_pipe(char **command) {
 		if (!strcmp(command[i], "|")) return true;
 	}
 	return false;
+}
+
+void exec_pipe(char ***new_cmds, int i, int n) {
+	int fd[2];
+	if (pipe(fd) == -1) {
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	int pid = fork();
+	if (pid < 0) {
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	if (pid == 0) {
+		dup2(fd[1], STDOUT_FILENO);	 // redirect stdout to pipe
+		close(fd[0]);
+		close(fd[1]);
+		execvp(new_cmds[i][0], new_cmds[i]);
+		printf("Invalid Command\n");
+		exit(EXIT_FAILURE);
+	} else {
+		dup2(fd[0], STDIN_FILENO);	// redirect stdin to pipe
+		close(fd[0]);
+		close(fd[1]);
+		waitpid(pid, NULL, 0);	// wait for the child to prevent zombies
+		if (i == n - 2) {
+			execvp(new_cmds[i + 1][0], new_cmds[i + 1]);
+			printf("Invalid Command\n");
+			exit(EXIT_FAILURE);
+		} else
+			exec_pipe(new_cmds, i + 1, n);
+	}
 }
 
 void execute_command(char **command) {
@@ -74,17 +106,22 @@ void execute_command(char **command) {
 			return;
 		}
 	}
-	if (found_pipe(command)) {
-	} else {
-		child_pid = fork();
-		if (child_pid == 0) {
-			handle_redirections(input_file, output_file, append_file);
-			signal(SIGINT, SIG_DFL);  // Do default behaviour of signal
-			if (execvp(command[0], command) < 0) perror("execvp");
-			printf("Invalid Command\n");
-			exit(EXIT_FAILURE);
+	child_pid = fork();
+	if (child_pid == 0) {
+		handle_redirections(input_file, output_file, append_file);
+		signal(SIGINT, SIG_DFL);  // Do default behaviour of signal
+		if (found_pipe(command)) {
+            if (invalid_pipe_usage(command)) {
+                fprintf(stderr, "vsh: Invalid pipe usage\n");
+                exit(EXIT_FAILURE);
+            }
+			exec_pipe(parse_pipes(command), 0, pipe_counter(command) + 1);
 		} else {
-			waitpid(child_pid, &status, WUNTRACED);
+			if (execvp(command[0], command) < 0) perror("execvp");
+			fprintf(stderr, "vsh: Invalid Command\n");
+			exit(EXIT_FAILURE);
 		}
+	} else {
+		waitpid(child_pid, &status, WUNTRACED);
 	}
 }

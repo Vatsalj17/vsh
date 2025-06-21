@@ -73,3 +73,41 @@ char **tokenize_input(char *input) {
 	return tokens;
 }
 
+bool invalid_pipe_usage(char **cmd) {
+    if (cmd[0] == NULL || strcmp(cmd[0], "|") == 0) return true;
+    for (int i = 0; cmd[i] != NULL; i++) {
+        if (strcmp(cmd[i], "|") == 0 && (cmd[i + 1] == NULL || strcmp(cmd[i + 1], "|") == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int pipe_counter(char **cmd) {
+	int c = 0;
+	for (int i = 0; cmd[i] != NULL; i++) {
+		if (strcmp(cmd[i], "|") == 0) c++;
+	}
+	return c;
+}
+
+char ***parse_pipes(char **cmd) {
+	int count = pipe_counter(cmd);
+	int n = count + 1;
+	char ***new_cmds = malloc(n * sizeof(char **));
+	for (int i = 0; i < n; i++) {
+		new_cmds[i] = malloc(64 * sizeof(char *));
+	}
+	int index = 0, sub_i = 0;
+	for (int i = 0; cmd[i] != NULL; i++) {
+		if (strcmp(cmd[i], "|") == 0) {
+			new_cmds[index][sub_i] = NULL;
+			sub_i = 0;
+			index++;
+			continue;
+		}
+		new_cmds[index][sub_i++] = cmd[i];
+	}
+    new_cmds[index][sub_i] = NULL;
+    return new_cmds;
+}

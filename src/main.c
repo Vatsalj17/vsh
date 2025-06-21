@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include "../include/executor.h"
 #include "../include/shell.h"
 #include "../include/signals.h"
