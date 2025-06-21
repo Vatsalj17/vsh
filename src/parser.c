@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../include/parser.h"
+#include "../include/utils.h"
 
 char **tokenize_input(char *input) {
 	int bufsize = VSH_TOK_BUFSIZE;
@@ -13,7 +14,7 @@ char **tokenize_input(char *input) {
 	}
 	int index = 0, pos = 0;
     while (input[pos] != '\0') {
-        while (input[pos] == ' ') pos++;
+        while (input[pos] == ' ') pos++; // ignore unnecessary blank spaces
         if (input[pos] == '\0') break;
 
         char *token = malloc(bufsize);
@@ -43,6 +44,17 @@ char **tokenize_input(char *input) {
                 free(token);
                 token = strdup(env_var);
             }
+        }
+        // handling home path
+        if (token[0] == '~') {
+            size_t newtoken_s = strlen(token) + strlen(vsh_get_homedir());
+            char *newtoken = (char *)malloc(newtoken_s);
+            if (token[1] == '\0') {
+                strcpy(newtoken, vsh_get_homedir());
+            } else {
+                snprintf(newtoken, newtoken_s, "%s%s", vsh_get_homedir(), token + 1);
+            }
+            token = newtoken;
         }
         tokens[index++] = token;
 		if (index >= bufsize) {
