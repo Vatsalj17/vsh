@@ -35,7 +35,7 @@ char **read_line() {
 		exit(0);
 	} else if (input && *input) {
         add_history(input);
-        write_history(vsh_history_path());
+        append_history(1, vsh_history_path());
     }
 	command = tokenize_input(input);
 	free(input);

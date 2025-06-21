@@ -22,6 +22,7 @@ int main() {
 	s.sa_flags = SA_RESTART;
 	sigaction(SIGINT, &s, NULL);
 	jump_active = 1;
+    using_history();
     read_history(vsh_history_path());
 	while (1) {
 		command = read_line();
@@ -35,5 +36,7 @@ int main() {
 		}
 		free(command);
 	}
+    stifle_history(1000);
+    write_history(vsh_history_path()); // write clean trimmed history
 	return 0;
 }

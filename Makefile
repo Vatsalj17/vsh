@@ -4,6 +4,7 @@ SRC = src
 INC = include
 OBJ = obj
 BIN = vsh
+BINDIR = /usr/local/bin
 SRCS = $(wildcard $(SRC)/*.c)
 OBJS = $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 
@@ -18,5 +19,18 @@ $(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
 $(OBJ):
 	mkdir -p $(OBJ)
 
+install: $(BIN)
+	@echo "Installing $(BIN) to $(BINDIR)..."
+	install -d $(BINDIR)
+	install -m 755 $(BIN) $(BINDIR)/$(BIN)
+	@echo "Installation complete!"
+
+uninstall:
+	@echo "Removing $(BIN) from $(BINDIR)..."
+	rm -f $(BINDIR)/$(BIN)
+	@echo "Uninstallation complete!"
+
 clean:
 	rm -rf $(BIN) $(OBJ)
+
+.PHONY: all install uninstall clean

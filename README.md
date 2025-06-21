@@ -5,11 +5,15 @@ VSH (V Shell) is a lightweight, custom Unix shell implementation written in C. I
 ## Features
 
 - **Interactive Command Line**: Colorized prompt showing username, hostname, and current directory
-- **Built-in Commands**: `cd`, `help`, and `exit` commands
-- **External Program Execution**: Run any system command or program
+- **Built-in Commands**: `cd`, `help`, `exit`, and `history` commands with full functionality
+- **External Program Execution**: Run any system command or program with argument support
+- **I/O Redirection**: Full support for input (`<`), output (`>`), and append (`>>`) redirection
+- **Pipe Support**: Chain commands together using pipes (`|`) for powerful command composition
+- **Environment Variables**: Access and use environment variables (e.g., `$HOME`, `$PATH`, `$USER`)
+- **Command History**: Persistent command history stored in `~/.vsh_history` with readline integration
 - **Signal Handling**: Proper handling of SIGINT (Ctrl+C) to interrupt running processes
-- **Home Directory Support**: Navigate using `~` shorthand for home directory
-- **Memory Management**: Proper allocation and cleanup of dynamic memory
+- **Home Directory Support**: Navigate using `~` shorthand for home directory expansion
+- **Memory Management**: Robust allocation and cleanup of dynamic memory with error handling
 
 ## Project Structure
 
@@ -33,61 +37,31 @@ vsh/
 │   └── utils.c   
 ├── obj/    
 ├── Makefile
-├── install.sh        # Automated installation script
 └── vsh     
 ```
 
 ## Installation
 
-### Method 1: Automated Installation (Recommended)
-
-Use the provided installation script that automatically detects your system and installs dependencies:
-
-```bash
-git clone https://github.com/Vatsalj17/vsh.git
-cd vsh
-chmod +x install.sh
-./install.sh
-```
-
-The installation script supports multiple operating systems and distributions:
-- **macOS**: Uses Homebrew for dependencies
-- **Ubuntu/Debian**: Uses apt package manager
-- **Arch Linux/Manjaro**: Uses pacman package manager
-- **Fedora**: Uses dnf package manager
-- **RHEL/CentOS**: Uses yum/dnf with EPEL repository
-- **openSUSE**: Uses zypper package manager
-- **Alpine Linux**: Uses apk package manager
-- **Void Linux**: Uses xbps package manager
-- **Gentoo**: Uses emerge package manager
-
-#### Installation Script Options
-
-```bash
-./install.sh                # Full installation (dependencies + build + install)
-```
-
-### Method 2: Manual Installation
-
-If you prefer manual installation or the automated script doesn't work for your system:
-
-#### Prerequisites
+### Prerequisites
 
 - GCC compiler
 - GNU Readline library
 - POSIX-compliant Unix system (Linux, macOS, etc.)
 
-#### Installing Dependencies Manually
+### Installing Dependencies
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get install gcc libreadline-dev
 ```
 
-**CentOS/RHEL/Fedora:**
+**CentOS/RHEL:**
 ```bash
 sudo yum install gcc readline-devel
-# or for newer versions:
+```
+
+**Fedora:**
+```bash
 sudo dnf install gcc readline-devel
 ```
 
@@ -95,18 +69,29 @@ sudo dnf install gcc readline-devel
 ```bash
 # Install Xcode command line tools
 xcode-select --install
-# Readline is usually available by default
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Install readline
+brew install readline
 ```
 
-#### Building Manually
+**Arch Linux:**
+```bash
+sudo pacman -S gcc readline
+```
+
+### Building and Installing
 
 ```bash
 git clone https://github.com/Vatsalj17/vsh.git
 cd vsh
 make
+sudo make install
 ```
 
-This will create the `vsh` executable in the project directory.
+This will:
+1. Build the `vsh` executable
+2. Install it to `/usr/local/bin/vsh` (accessible system-wide)
 
 ## Usage
 
@@ -125,19 +110,42 @@ username@hostname:[current_directory]⊱
 
 ### Built-in Commands
 
-- **`cd [directory]`**: Change directory
-- **`help`**: Display available commands
-- **`exit`**: Exit the shell
-- **`history`**: Display history of commands
+- **`cd [directory]`**: Change directory (supports `~` for home directory)
+- **`help`**: Display available commands and shell features
+- **`exit`**: Exit the shell gracefully
+- **`history`**: Display command history (stored in `~/.vsh_history`)
 
-### External Commands
+### External Commands and Advanced Features
 
-Any system command or program can be executed:
+Any system command or program can be executed with full support for advanced shell features:
+
+**Basic Commands:**
 ```bash
 ls -la
 grep "pattern" file.txt
 gcc -o program program.c
 python script.py
+```
+
+**I/O Redirection:**
+```bash
+ls > file_list.txt          # Redirect output to file
+cat < input.txt             # Redirect input from file
+echo "text" >> log.txt      # Append output to file
+```
+
+**Pipes:**
+```bash
+ls -la | grep ".txt"        # List files and filter for .txt files
+cat file.txt | sort | uniq  # Sort and remove duplicates
+ps aux | grep "vsh"         # Find vsh processes
+```
+
+**Environment Variables:**
+```bash
+echo $HOME                  # Display home directory
+echo $PATH                  # Display PATH variable
+ls $HOME/Documents          # Use variables in commands
 ```
 
 ### Signal Handling
@@ -165,21 +173,22 @@ python script.py
 
 ## Cleaning Up
 
-Remove compiled files:
+To remove VSH from your system:
 
 ```bash
-make clean
+sudo make uninstall
 ```
 
-Uninstall VSH (if installed system-wide):
-
+To clean build artifacts:
 ```bash
-sudo rm /usr/local/bin/vsh
+make clean
 ```
 
 ## Known Limitations
 
 - No background process support (`&`)
+- No command substitution (`` `command` `` or `$(command)`)
+- No shell scripting support (if/while/for loops)
 - Limited tab completion (relies on readline's default behavior)
 
 ## Contributing
@@ -189,4 +198,3 @@ sudo rm /usr/local/bin/vsh
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
-

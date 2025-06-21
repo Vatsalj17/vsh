@@ -32,10 +32,13 @@ int vsh_help(char **args) {
 int vsh_exit(char **args) { exit(0); }
 
 int vsh_history(char **args) {
-    HISTORY_STATE *hist = history_get_history_state();
-    for (int i = 1; i <= hist->length; i++) {
-        HIST_ENTRY *data = history_get(i);
-        printf("%d. %s\n", i, data->line);
+    HIST_ENTRY **the_list = history_list();
+    if (the_list == NULL) {
+        printf("No history.\n");
+        return 0;
+    }
+    for (int i = 0; the_list[i] != NULL; i++) {
+        printf("%d. %s\n", i + 1, the_list[i]->line);
     }
     return 0;
 }
